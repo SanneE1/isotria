@@ -1,2 +1,2 @@
-# isotria
-Analysis of yet another amazing plant demographic data
+# Isotria
+Analysis of yet another amazing plant demographic dataset
