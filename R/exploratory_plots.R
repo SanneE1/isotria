@@ -1,6 +1,5 @@
 # ISSUE INDIVIDUALS (gaps in Stage information), SOLVE: 454  497 5079 5080  170  240
 # setwd("C:/Users/pvitt/Dropbox/isotria_idiv")
-setwd("C:/cloud/Dropbox/isotria_idiv")
 library(dplyr)
 library(tidyr)
 library(readxl)
