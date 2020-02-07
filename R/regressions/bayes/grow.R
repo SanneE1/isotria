@@ -1,5 +1,4 @@
 rm(list=ls())
-setwd("C:/cloud/Dropbox/isotria_idiv")
 library(dplyr)
 library(tidyr)
 library(testthat)
@@ -7,7 +6,7 @@ library(rstan)
 library(loo)
 library(lme4)
 options(stringsAsFactors = F)
-source('C:/cloud/Dropbox/isotria_idiv/analysis/climate/make_anomalies.R')
+source('R/climate/make_anomalies.R')
 
 # set rstan options to parallel cores
 rstan_options( auto_write = TRUE )
