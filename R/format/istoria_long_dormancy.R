@@ -183,7 +183,7 @@ plot( jitter(dormancy_t1) ~ log(size_t1), data = vr )
 
 
 
-write.csv(vr, 'istoria_long.csv', row.names = F)
+write.csv(vr, 'data/istoria_long.csv', row.names = F)
 
 
 
