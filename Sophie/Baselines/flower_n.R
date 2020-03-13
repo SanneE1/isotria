@@ -24,7 +24,7 @@ candidate_mods <- list(
 # this one probably overfits less
 
 flwrn_m    <- lapply( candidate_mods, 
-                      function(x) glmer(x, data=flower_p, family='poisson') )
+                      function(x) glmer(x, data=flower_n, family='poisson') )
 
 compare <- as.data.frame(AICtab(flwrn_m, weights = TRUE, base = TRUE))
 
