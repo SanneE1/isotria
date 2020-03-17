@@ -43,7 +43,8 @@ vr_l[[5]] <- vr_l[[1]] %>% rename( Stage_t1 = Stage )
 vr_l[[1]] <- vr_l[[1]] %>% rename( Stage_t0 = Stage ) %>%
   mutate( year = year + 1 )
 vr_l[[1]] <- left_join(vr_l[[1]], vr_l[[5]]) %>% 
-  mutate( dormancy_t1 = NA ) %>% 
+  mutate( dormancy_t1 = NA,
+          remain_dorm_t1 = NA) %>% 
   # dormant plants
   mutate( dormancy_t1 = replace(dormancy_t1,
                                 Stage_t0 == 'plant' &
@@ -55,10 +56,14 @@ vr_l[[1]] <- left_join(vr_l[[1]], vr_l[[5]]) %>%
                                   Stage_t1 == 'plant',
                                 0) ) %>% 
   # not dormant 2
-  mutate( dormancy_t1 = replace(dormancy_t1,
+  mutate( dormancy_t1 = replace(remain_dorm_t1,
                                 Stage_t0 == 'dormant' &
                                   Stage_t1 == 'plant',
-                                0) )
+                                0) ) %>%
+  mutate( remain_dorm_t1 = replace(remain_dorm_t1,
+                                   Stage_t0 == 'dormant' &
+                                     Stage_t1 == 'dormant',
+                                   1))
 
 
 # non survival data
@@ -155,7 +160,7 @@ surv_df <- lapply(new_tags, survival_find ) %>%
 # vital rates ---------------------------------------------------------------
 vr      <- left_join( non_surv, surv_df ) %>%
   setNames( c('Site', 'New_Tag', 'Habitat_Man', 'year_t1', 
-              'stage_t0', 'stage_t1','dormancy_t1',
+              'stage_t0', 'stage_t1','dormancy_t1', 'remain_dorm_t1',
               'n_flower_t1', 'n_fruit_t1', 
               'size_t0', 'size_t1', 'surv_t1') ) %>% 
   # introduce flowering information
