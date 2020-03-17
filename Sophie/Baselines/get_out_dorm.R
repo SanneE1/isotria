@@ -21,8 +21,11 @@ max(a$duration_dorm)
 p_out <- mean(dorm$remain_dorm_t1, na.rm = TRUE)
 
 ## exploratory plots
-source("../../52 Scrap code/plot_binned_prop_df.R")
-
+#source("../../52 Scrap code/plot_binned_prop_df.R")
+source("/Users/sophi/Documents/idivproject/isotria/plot_binned_prop_df.R")
+#df_bin <- logitbin_df(surv, resp = surv_t1, xvar = size_t0, year_t1, Site)
+#df_bin <- df_bin %>%
+ # mutate(site = as.factor(Site))
 
 ggplot(df_bin, aes(x = size_t0, y = dormancy_t1)) + geom_point() + facet_wrap(vars(year_t1))
 
