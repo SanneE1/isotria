@@ -20,8 +20,11 @@ max(a$duration_dorm)
 
 # get out of dormancy probability
 
-p_out <- mean(dorm$remain_dorm_t1, na.rm = TRUE)
-head(p_out)
+p_stay <- mean(dorm$remain_dorm_t1, na.rm = TRUE) 
+p_stay
+p_out <- 1 - p_stay
+p_out
+
 ## exploratory plots
 #source("../../52 Scrap code/plot_binned_prop_df.R")
 source("/Users/sophi/Documents/idivproject/isotria/plot_binned_prop_df.R")

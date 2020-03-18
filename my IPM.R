@@ -1,7 +1,5 @@
 # IPM from data by aldo
-isotria_long <- read.csv("data/isotria_long.csv")
 
-View(isotria_long)
 
 # Check for and install required packages
 for (package in c('dplyr', 'tidyr')) {
@@ -14,31 +12,32 @@ library(dplyr);library(tidyr)
 options(stringsAsFactors = F)
 library(lme4)
 # read data 
-isotria_long <- read.csv("data/isotria_long.csv") %>%
-mutate(size_t0 = log(size_t0),
+isotria_long <- read.csv("data/isotria_long.csv")
+iso<-isotria_long%>%
+ mutate(size_t0 = log(size_t0),
        size_t1 = log(size_t1))
 
-View(isotria_long)
+View(iso)
 
 
 # Visualize data ---------------------------------------------------------------------
-tiff("data/isotria_long.csv", unit="cm", 
-     width=16, height=16, res=400, compression="lzw")
+#tiff("data/isotria_long.csv", unit="cm", 
+     #width=16, height=16, res=400, compression="lzw")
 
-par( mfrow=c(1,1), mar = c(3.5,3.5,1,0.3), mgp = c(2,0.7,0) )
-hist(isotria_long$size_t0, main="", 
-     cex.lab=2, cex.axis=1.5, xlab = "viable_buds_t")
-dev.off()
-head(isotria_long)
+#par( mfrow=c(1,1), mar = c(3.5,3.5,1,0.3), mgp = c(2,0.7,0) )
+#hist(isotria_long$size_t0, main="", 
+     #cex.lab=2, cex.axis=1.5, xlab = "viable_buds_t")
+#dev.off()
+#head(isotria_long)
 
 
 #1. Plot survival, growth, flowerpropability, flowernumber, propabilyty to go dormant, propabilyty to go out of dormancy
 par( mfrow=c(2,2), mar = c(3.5,3.5,1,0.3), mgp = c(2,0.7,0) )
-plot(jitter(surv_t1) ~ log(size_t0), data = isotria_long)
-plot(log(size_t1)  ~ log(size_t0), data = isotria_long )
-plot(flower_t1  ~ log(size_t0), data = isotria_long)
-plot(n_flower_t1  ~ log(size_t0), data = isotria_long)
-plot(dormancy_t1~log(size_t0),data = isotria_long)
+plot(jitter(surv_t1) ~ size_t0, data = iso)
+plot(log(size_t1)  ~ size_t0, data = iso )
+plot(flower_t1  ~ size_t0, data = iso)
+plot(n_flower_t1  ~ size_t0, data = iso)
+plot(dormancy_t1~(size_t0),data = iso)
 plot(p_out)
 #plot
 # histogram for new plants
@@ -47,22 +46,22 @@ plot(p_out)
 # Plot GLM ---------------------------------------------------------------
 
 # fit models 
-sr_surv_t1<-isotria_long %>% filter(!is.na(surv_t1) & (!is.na(size_t0))) 
+sr_surv_t1<-iso %>% filter(!is.na(surv_t1) & (!is.na(size_t0))) 
 str(sr_surv_t1)
 
 sr_mod  <- glmer(surv_t1 ~ size_t0 + (size_t0 | year_t1), data = sr_surv_t1, family = binomial() )
+#sr_mod is the model i am currently using to try things out, the others down below are not changed jet to the current status
 
-
-gr_mod  <- lm(log(size_t1) ~ log(size_t0) + (log(size_t0) | year_t1), data = isotria_long)
+gr_mod  <- lm(size_t1 ~ size_t0 + size_t0 +(1| year_t1), data = iso)
 
 flowpop_flower_t_1<-isotria_long %>% filter(!is.na(flower_t1) & (!is.na(size_t0)))
-flowpop_mod <- glmer(flower_t1 ~ log(size_t0) * Site + (1 | year_t1),data= flowpop_flower_t_1, family = binomial())
+flowpop_mod <- glmer(flower_t1 ~ size_t0 * Site + (1 | year_t1),data= flowpop_flower_t_1, family = binomial())
 
 flower_n_flower_t1<-isotria_long %>% filter(is.na(n_flower_t1) & (is.na(size_t0)))
 flower_n_mod <-glmer(n_flower_t1 ~ log(size_t0) + Site + (1 | year_t1), data = flower_n_flower_t1 , family = poisson())
 
 dorm_mod_dormancy_t1<-isotria_long %>% filter(is.na(dormancy_t1) & (is.na(size_t0)))
-dorm_mod<-glmer(dormancy_t1 ~ log(size_t0) * Site + (1 | year_t1),data = dorm_mod_dormancy_t1, family = binomial())
+dorm_mod<-glmer(dormancy_t1 ~ size_t0 * Site + (1 | year_t1),data = dorm_mod_dormancy_t1, family = binomial())
 
 #2. Create the function to apply the inverse logit
 inv_logit<-function(x){
@@ -73,21 +72,21 @@ inv_logit<-function(x){
 
 # plot models
 par( mfrow=c(2,2), mar = c(3,3,1,0.3), mgp = c(2,0.7,0) )
-plot(glmer(surv_t1 ~ log(size_t0) + (log(size_t0) | year_t1), data = isotria_long, family = binomial ))
+plot(glmer(surv_t1 ~ size_t0 + size_t0 | year_t1), data = iso, family = binomial )
 lines(x_seq,sr_y_pred,col="red")
-plot(lm(size_t1 ~ size_t0 + (size_t0 | year_t1), data = isotria_long) )
+plot(lm(size_t1 ~ size_t0 + (size_t0 | year_t1), data = iso) )
 lines(x_seq,gr_y_pred,col="red")
-plot(glmer(flower_t1 ~ size_t0 * Site + (1 | year_t1),data= isotria_long))
+plot(glmer(flower_t1 ~ size_t0 * Site + (1 | year_t1),data= iso))
 lines(x_seq,flp_y_pred,col="red")
-plot(glmer(n_flower_t1 ~ size_t0 + Site + (1 | year_t1), data= isotria_long, family = poisson()))
+plot(glmer(n_flower_t1 ~ size_t0 + Site + (1 | year_t1), data= iso, family = poisson()))
 lines(x_seq,fln_y_pred,col="red")
-plot(glmer(dormancy_t1 ~ size_t0 * Site + (1 | year_t1),data = isotria_long, family = binomial()))
+plot(glmer(dormancy_t1 ~ size_t0 * Site + (1 | year_t1),data = iso, family = binomial()))
 lines(x_seq,do_y_pred,col="red")
 
 
 # sequence of X values
-x_seq <- seq(min(isotria_long$log(size_t0), na.rm=T), 
-             max(isotria_long$log(size_t0), na.rm=T), by = 0.1)
+x_seq <- seq(min(isotria_long$size_t0, na.rm=T), 
+             max(isotria_long$size_t0, na.rm=T), by = 0.1)
 
 #sr
 sr_b0<-coef(sr_mod)[1]
@@ -133,12 +132,12 @@ pars  <- list( surv_b0 = coef(sr_mod)[1],
                dom_b0 = coef(dorm_mod)[1],
                dom_b1 = coef (dorm_mod)[2],
                
-               L       = min(isotria_long$log(size_t0),na.rm=T),
-               U       = max(isotria_long$log(size_t0),na.rm=T),
+               L       = min(isotria_long$size_t0,na.rm=T),
+               U       = max(isotria_long$size_t0,na.rm=T),
                mat_siz = 50
 )
 pars$surv_b0
-
+# Iworked till this part
 # functions 
 
 # Transforms all values below/above limits in min/max size
