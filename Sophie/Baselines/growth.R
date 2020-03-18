@@ -25,3 +25,6 @@ growth_m    <- lapply( candidate_mods,
                      function(x) lmer(x, data=growth) )
 
 compare <- as.data.frame(AICtab(growth_m, weights = TRUE, base = TRUE))
+summary(growth_m[[row.names(compare)[1]]])
+plot(growth_m[[row.names(compare)[1]]])
+
