@@ -36,7 +36,8 @@ plot(dorm_m[[row.names(compare)[1]]])
 
 
 ## exploratory plots
-source("../../52 Scrap code/plot_binned_prop_df.R")
+#source("../..52 Scrap code/plot_binned_prop_df.R")
+source("/Users/sophi/Documents/idivproject/isotria/plot_binned_prop_df.R")
 
 df_bin <- logitbin_df(dorm, resp = dormancy_t1, xvar = size_t0, year_t1, n = 50)
 
