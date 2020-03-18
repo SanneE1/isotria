@@ -10,18 +10,18 @@ library("ggplot2", lib.loc="~/R/win-library/3.5")
  
  # log(size_t0) vs log(size_t1)
  #general function
- ggplot(isotria_long,aes(log(size_t0),log(size_t1)))+
+ ggplot(isotria_long,aes(log(size_t0),log(size_t1))) +
    geom_point()
  
  
  # devided by year
- t<-ggplot(isotria_long,aes(log(size_t0),log(size_t1)))+
+ t<-ggplot(isotria_long,aes(log(size_t0),log(size_t1))) +
    geom_point()
  plot(t)
  # facet_wrap
- t+facet_wrap(isotria_long$year_t1~.)+
-   ggtitle("growth (log)")+
- ggsave("growth(log).png")
+ t+facet_wrap(isotria_long$year_t1~.) +
+   ggtitle("growth (log)") +
+ ggsave("Sophie/Visuals/growth(log).png")
  
  
  # function by sanne
@@ -76,7 +76,7 @@ t<-ggplot(survl,aes(size_t0,surv_t1))+
 plot(t)
 t+facet_wrap(survl$year_t1~.)+
   ggtitle("survival(log)")+
-ggsave("survival(log).png")
+ggsave("Sophie/Visuals/survival(log).png")
 
 
 # n_flower log
@@ -95,7 +95,7 @@ t<-ggplot(n_fll,aes(size_t0,n_flower_t1))+
 plot(t)
 t+facet_wrap(n_fll$year_t1~.)+
   ggtitle("flowernumber(log)")+
-ggsave("flowernumber(log).png")
+ggsave("Sophie/Visuals/flowernumber(log).png")
 
 #n_fruit log
 logitbin_df(df = a, resp = n_fruit_t1, xvar = size_t0, year_t1, log_trans_xvar = T)
@@ -112,7 +112,7 @@ t<-ggplot(n_frl,aes(size_t0,n_fruit_t1))+
 plot(t)
 t+facet_wrap(n_frl$year_t1~.)+
   ggtitle("fruitnumber(log)")
-ggsave("fruitnumber(log).png")
+ggsave("Sophie/Visuals/fruitnumber(log).png")
 
 
 #dormancy log
@@ -130,7 +130,7 @@ t<-ggplot(dorml,aes(size_t0,dormancy_t1))+
 plot(t)
 t+facet_wrap(dorml$year_t1~.)+
   ggtitle("dormancy (log)")
-ggsave("dormancy(log).png")
+ggsave("Sophie/Visuals/dormancy(log).png")
 
 
 #flower prop
@@ -171,7 +171,7 @@ head(w)
 ggplot(w,aes(log(size_t1)))+
 geom_histogram()+
 ggtitle('New Plants')
-ggsave("Newplants.png")
+ggsave("Sophie/Visuals/Newplants.png")
 
 
 # histogramm for plants that go from dormancy to plant
@@ -181,7 +181,7 @@ head(l)
 ggplot(l,aes(log(size_t1)))+
   geom_histogram()+
   ggtitle('Woke Plants')
-ggsave("Wokeplants.png")
+ggsave("Sophie/Visuals/Wokeplants.png")
 
 
 #fruits and new recrits
@@ -207,7 +207,7 @@ fru
 ggplot(fru,aes((n_fruit_t0),(n_rec)))+
   geom_point()+
   ggtitle('reproduktion')
-ggsave('reproduktion.png')  
+ggsave('Sophie/Visuals/reproduktion.png')  
 
 
 
