@@ -1,17 +1,16 @@
+<<<<<<< HEAD
 # IPM from data by aldo
 
-
-# Check for and install required packages
-for (package in c('dplyr', 'tidyr')) {
-  if (!require(package, character.only=T, quietly=T)) {
-    install.packages(package)
-    library(package, character.only=T)
-  }
-}
-library(dplyr);library(tidyr)
-options(stringsAsFactors = F)
+=======
+library(dplyr)
+library(tidyr)
 library(lme4)
+>>>>>>> 5952d8015feb36f00869929bec12e8d155de6681
+
+options(stringsAsFactors = F)
+
 # read data 
+<<<<<<< HEAD
 isotria_long <- read.csv("data/isotria_long.csv")
 iso<-isotria_long%>%
  mutate(size_t0 = log(size_t0),
@@ -29,7 +28,22 @@ View(iso)
      #cex.lab=2, cex.axis=1.5, xlab = "viable_buds_t")
 #dev.off()
 #head(isotria_long)
+=======
+isotria_long <- read.csv("data/isotria_long.csv") %>%
+  subset(size_t0 != 0) %>%
+  mutate(size_t0 = log(size_t0),
+         size_t1 = log(size_t1))
 
+# View(isotria_long)
+
+
+# Visualize data ---------------------------------------------------------------------
+>>>>>>> 5952d8015feb36f00869929bec12e8d155de6681
+
+# Sophie: if you want to redo some exploratory plots here, that's alright. 
+# However you already did these in exploratoryplots.R
+# you can re-run this script using:
+# source("Sophie/exploratoryplots.R")
 
 #1. Plot survival, growth, flowerpropability, flowernumber, propabilyty to go dormant, propabilyty to go out of dormancy
 par( mfrow=c(2,2), mar = c(3.5,3.5,1,0.3), mgp = c(2,0.7,0) )
@@ -45,6 +59,7 @@ plot(p_out)
 
 # Plot GLM ---------------------------------------------------------------
 
+<<<<<<< HEAD
 # fit models 
 sr_surv_t1<-iso %>% filter(!is.na(surv_t1) & (!is.na(size_t0))) 
 str(sr_surv_t1)
@@ -53,6 +68,25 @@ sr_mod  <- glmer(surv_t1 ~ size_t0 + (size_t0 | year_t1), data = sr_surv_t1, fam
 #sr_mod is the model i am currently using to try things out, the others down below are not changed jet to the current status
 
 gr_mod  <- lm(size_t1 ~ size_t0 + size_t0 +(1| year_t1), data = iso)
+=======
+# Sophie, it would be good if you add a few more comments/notes here. This will make it easier
+# for others to read and understand this file, Especially if, in this section, you are creating so many
+# dataframes, one for each model. In that case you might want to creat all the dataframes first 
+# (with a quick title like "creating dataframes for models") before running the models
+# Also the View() and str() functions are
+# more diagnostics that people can do if they don't understand the code, or while you are trying
+# to figure out if or why not a line is working
+
+# fit models 
+sr_mod  <- glmer(surv_t1 ~ size_t0 + (size_t0 | year_t1), 
+                 # the way I'm selecting the data in the model means that you end up with less objects, and makes it a lot more readable
+                 # doesn't mean that what you were doing is wrong!)
+                 data = isotria_long %>% filter(!is.na(surv_t1) & (!is.na(size_t0))), 
+                 family = 'binomial' )
+
+# don't forget to remove the log() here!
+gr_mod  <- lm(log(size_t1) ~ log(size_t0) + (log(size_t0) | year_t1), data = isotria_long)
+>>>>>>> 5952d8015feb36f00869929bec12e8d155de6681
 
 flowpop_flower_t_1<-isotria_long %>% filter(!is.na(flower_t1) & (!is.na(size_t0)))
 flowpop_mod <- glmer(flower_t1 ~ size_t0 * Site + (1 | year_t1),data= flowpop_flower_t_1, family = binomial())
