@@ -96,7 +96,7 @@ pars  <- list( surv_b0 = coef(sr_mod)[1],
                L       = min(op_dem$log_vol_t,na.rm=T),
                U       = max(op_dem$log_vol_t,na.rm=T),
                mat_siz = 50
-            )
+)
 pars$surv_b0
 
 # functions 
@@ -105,7 +105,7 @@ pars$surv_b0
 x_range <- function(x,pars){
   pmin(pmax(x,pars$L),pars$U)
 }
-  
+
 # Growth (transition) from size x to size y
 gxy <- function(x,y,pars){
   xb <- x_range(x, pars)
@@ -240,7 +240,7 @@ lambda <- Re(eigen(kernel(pars)$k_yx)$value[1])
 #6. Create a function that calculates deterministic lambda
 
 lamda1<-function(pars)
-  {
+{
   Re(eigen(kernel(pars)$k_yx)$value[1])
 }
 pars$mat_siz  <- sizes[i]
