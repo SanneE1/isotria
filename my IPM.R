@@ -1,36 +1,24 @@
-# IPM from data by aldo
-isotria_long <- read.csv("data/isotria_long.csv")
-
-View(isotria_long)
-
-# Check for and install required packages
-for (package in c('dplyr', 'tidyr')) {
-  if (!require(package, character.only=T, quietly=T)) {
-    install.packages(package)
-    library(package, character.only=T)
-  }
-}
-library(dplyr);library(tidyr)
-options(stringsAsFactors = F)
+library(dplyr)
+library(tidyr)
 library(lme4)
+
+options(stringsAsFactors = F)
+
 # read data 
 isotria_long <- read.csv("data/isotria_long.csv") %>%
-mutate(size_t0 = log(size_t0),
-       size_t1 = log(size_t1))
+  subset(size_t0 != 0) %>%
+  mutate(size_t0 = log(size_t0),
+         size_t1 = log(size_t1))
 
-View(isotria_long)
+# View(isotria_long)
 
 
 # Visualize data ---------------------------------------------------------------------
-tiff("data/isotria_long.csv", unit="cm", 
-     width=16, height=16, res=400, compression="lzw")
 
-par( mfrow=c(1,1), mar = c(3.5,3.5,1,0.3), mgp = c(2,0.7,0) )
-hist(isotria_long$size_t0, main="", 
-     cex.lab=2, cex.axis=1.5, xlab = "viable_buds_t")
-dev.off()
-head(isotria_long)
-
+# Sophie: if you want to redo some exploratory plots here, that's alright. 
+# However you already did these in exploratoryplots.R
+# you can re-run this script using:
+# source("Sophie/exploratoryplots.R")
 
 #1. Plot survival, growth, flowerpropability, flowernumber, propabilyty to go dormant, propabilyty to go out of dormancy
 par( mfrow=c(2,2), mar = c(3.5,3.5,1,0.3), mgp = c(2,0.7,0) )
@@ -46,13 +34,22 @@ plot(p_out)
 
 # Plot GLM ---------------------------------------------------------------
 
+# Sophie, it would be good if you add a few more comments/notes here. This will make it easier
+# for others to read and understand this file, Especially if, in this section, you are creating so many
+# dataframes, one for each model. In that case you might want to creat all the dataframes first 
+# (with a quick title like "creating dataframes for models") before running the models
+# Also the View() and str() functions are
+# more diagnostics that people can do if they don't understand the code, or while you are trying
+# to figure out if or why not a line is working
+
 # fit models 
-sr_surv_t1<-isotria_long %>% filter(!is.na(surv_t1) & (!is.na(size_t0))) 
-str(sr_surv_t1)
+sr_mod  <- glmer(surv_t1 ~ size_t0 + (size_t0 | year_t1), 
+                 # the way I'm selecting the data in the model means that you end up with less objects, and makes it a lot more readable
+                 # doesn't mean that what you were doing is wrong!)
+                 data = isotria_long %>% filter(!is.na(surv_t1) & (!is.na(size_t0))), 
+                 family = 'binomial' )
 
-sr_mod  <- glmer(surv_t1 ~ size_t0 + (size_t0 | year_t1), data = sr_surv_t1, family = binomial() )
-
-
+# don't forget to remove the log() here!
 gr_mod  <- lm(log(size_t1) ~ log(size_t0) + (log(size_t0) | year_t1), data = isotria_long)
 
 flowpop_flower_t_1<-isotria_long %>% filter(!is.na(flower_t1) & (!is.na(size_t0)))
