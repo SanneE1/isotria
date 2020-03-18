@@ -12,9 +12,11 @@ for (package in c('dplyr', 'tidyr')) {
 }
 library(dplyr);library(tidyr)
 options(stringsAsFactors = F)
-
+library(lme4)
 # read data 
-isotria_long <- read.csv("data/isotria_long.csv")
+isotria_long <- read.csv("data/isotria_long.csv") %>%
+mutate(size_t0 = log(size_t0),
+       size_t1 = log(size_t1))
 
 View(isotria_long)
 
@@ -45,11 +47,22 @@ plot(p_out)
 # Plot GLM ---------------------------------------------------------------
 
 # fit models 
-sr_mod  <- glmer(surv_t1 ~ log(size_t0) + (log(size_t0) | year_t1), data = isotria_long, family = binomial() )
+sr_surv_t1<-isotria_long %>% filter(!is.na(surv_t1) & (!is.na(size_t0))) 
+str(sr_surv_t1)
+
+sr_mod  <- glmer(surv_t1 ~ size_t0 + (size_t0 | year_t1), data = sr_surv_t1, family = binomial() )
+
+
 gr_mod  <- lm(log(size_t1) ~ log(size_t0) + (log(size_t0) | year_t1), data = isotria_long)
-flowpop_mod <- glmer(flower_t1 ~ log(size_t0) * Site + (1 | year_t1),data= isotria_long)
-flower_n_mod <-glmer(n_flower_t1 ~ log(size_t0) + Site + (1 | year_t1), data= isotria_long, family = poisson())
-dorm_mod<-glmer(dormancy_t1 ~ log(size_t0) * Site + (1 | year_t1),data = isotria_long, family = binomial())
+
+flowpop_flower_t_1<-isotria_long %>% filter(!is.na(flower_t1) & (!is.na(size_t0)))
+flowpop_mod <- glmer(flower_t1 ~ log(size_t0) * Site + (1 | year_t1),data= flowpop_flower_t_1, family = binomial())
+
+flower_n_flower_t1<-isotria_long %>% filter(is.na(n_flower_t1) & (is.na(size_t0)))
+flower_n_mod <-glmer(n_flower_t1 ~ log(size_t0) + Site + (1 | year_t1), data = flower_n_flower_t1 , family = poisson())
+
+dorm_mod_dormancy_t1<-isotria_long %>% filter(is.na(dormancy_t1) & (is.na(size_t0)))
+dorm_mod<-glmer(dormancy_t1 ~ log(size_t0) * Site + (1 | year_t1),data = dorm_mod_dormancy_t1, family = binomial())
 
 #2. Create the function to apply the inverse logit
 inv_logit<-function(x){
@@ -70,6 +83,7 @@ plot(glmer(n_flower_t1 ~ size_t0 + Site + (1 | year_t1), data= isotria_long, fam
 lines(x_seq,fln_y_pred,col="red")
 plot(glmer(dormancy_t1 ~ size_t0 * Site + (1 | year_t1),data = isotria_long, family = binomial()))
 lines(x_seq,do_y_pred,col="red")
+
 
 # sequence of X values
 x_seq <- seq(min(isotria_long$log(size_t0), na.rm=T), 
@@ -119,8 +133,8 @@ pars  <- list( surv_b0 = coef(sr_mod)[1],
                dom_b0 = coef(dorm_mod)[1],
                dom_b1 = coef (dorm_mod)[2],
                
-               L       = min(isotria_long$size_t0,na.rm=T),
-               U       = max(isotria_long$size_t0,na.rm=T),
+               L       = min(isotria_long$log(size_t0),na.rm=T),
+               U       = max(isotria_long$log(size_t0),na.rm=T),
                mat_siz = 50
 )
 pars$surv_b0
