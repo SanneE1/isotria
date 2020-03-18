@@ -56,7 +56,7 @@ vr_l[[1]] <- left_join(vr_l[[1]], vr_l[[5]]) %>%
                                   Stage_t1 == 'plant',
                                 0) ) %>% 
   # not dormant 2
-  mutate( dormancy_t1 = replace(remain_dorm_t1,
+  mutate( remain_dorm_t1 = replace(remain_dorm_t1,
                                 Stage_t0 == 'dormant' &
                                   Stage_t1 == 'plant',
                                 0) ) %>%
@@ -173,19 +173,19 @@ vr      <- left_join( non_surv, surv_df ) %>%
 
 
 # Visual checks ----------------------------------------------------------------------------
-par(mfrow = c(3,2) )
-plot( surv_t1 ~ size_t0, data= logitbin_df(subset(vr, !is.na(surv_t1) && !is.na(size_t0)), surv_t1, size_t0, n= 500, log_trans_xvar = TRUE))
-plot( log(size_t1) ~ log(size_t0), data = vr )
-plot( flower_t1 ~ size_t1, data = logitbin_df(vr, flower_t1, size_t1, log_trans_xvar = TRUE))
-plot( n_flower_t1 ~ log(size_t1), data = vr )
-plot( n_fruit_t1 ~ n_flower_t1, data = vr )
-plot( dormancy_t1 ~ size_t0, data = logitbin_df(vr, dormancy_t1, size_t0, log_trans_xvar = TRUE ))
-
-# visual checks to find mistakes
-par(mfrow = c(2,1) )
-plot( jitter(surv_t1) ~ log(size_t1), data=subset(vr, !is.na(surv_t1)) )
-plot( jitter(dormancy_t1) ~ log(size_t1), data = vr )
-
+# par(mfrow = c(3,2) )
+# plot( surv_t1 ~ size_t0, data= logitbin_df(subset(vr, !is.na(surv_t1) && !is.na(size_t0)), surv_t1, size_t0, n= 500, log_trans_xvar = TRUE))
+# plot( log(size_t1) ~ log(size_t0), data = vr )
+# plot( flower_t1 ~ size_t1, data = logitbin_df(vr, flower_t1, size_t1, log_trans_xvar = TRUE))
+# plot( n_flower_t1 ~ log(size_t1), data = vr )
+# plot( n_fruit_t1 ~ n_flower_t1, data = vr )
+# plot( dormancy_t1 ~ size_t0, data = logitbin_df(vr, dormancy_t1, size_t0, log_trans_xvar = TRUE ))
+# 
+# # visual checks to find mistakes
+# par(mfrow = c(2,1) )
+# plot( jitter(surv_t1) ~ log(size_t1), data=subset(vr, !is.na(surv_t1)) )
+# plot( jitter(dormancy_t1) ~ log(size_t1), data = vr )
+# 
 
 
 write.csv(vr, 'data/isotria_long.csv', row.names = F)
@@ -195,39 +195,39 @@ write.csv(vr, 'data/isotria_long.csv', row.names = F)
 # trobleshoot --------------------------------------------------------------------------
 
 #individuals come back after long dormancy (+3 years) -----------
-come_back <- lapply(new_tags, function(x) survival_find(x, find_long_dorm = TRUE)) %>%
-  Reduce(function(...) rbind(...), .) %>%
-  arrange(New_Tag, year_t1)
-
-# missing size information even though the plant is not dormant and does survive (and sometimes flower)
-missing_size <- subset(vr, surv_t1 == 1 & is.na(size_t1) & stage_t1 == "plant") %>%
-  select(Site, New_Tag, year_t1, stage_t1, size_t1) %>%
-  arrange(New_Tag, year_t1)
-
-# survival= 1 and not dormant but size_t0 was 0
-size_0 <- subset(vr, stage_t1 == "plant" & size_t1 == 0) %>%
-  select(Site, New_Tag, year_t1, stage_t1, size_t1) %>%
-  arrange(New_Tag, year_t1)
-
-# how can dormant plants be associated with size_t0 NA?
-dormant_size <- subset(vr, dormancy_t1 == 1 & !is.na(size_t1)) %>%
-  select(Site, New_Tag, year_t1, stage_t1, size_t1) %>%
-  arrange(New_Tag, year_t1)
-
-# How can n_fruit_t1 be == 2 but n_flower_t1 NA?!?
-fruit_noflower <- subset(vr, n_fruit_t1 == 2) %>%
-  select(Site, New_Tag, year_t1, stage_t1, size_t1, flower_t1, n_flower_t1, n_fruit_t1) %>%
-  arrange(New_Tag, year_t1)
-
-# 633: In 1989 individual goes dormant, but we have size information. Is this a mistake?
-# 170: In 1998 individual has 2 fruits, but no flower.
-# 292: In 1999 individual has 2 fruits, but no flower.
-
-# Export issues
-
-xlsx::write.xlsx(come_back, file = "Formatting_issues.xlsx", sheetName = "ComeBack", row.names = FALSE)
-xlsx::write.xlsx(missing_size, file = "Formatting_issues.xlsx", sheetName = "MissingSize", row.names = FALSE, append = TRUE)
-xlsx::write.xlsx(size_0, file = "Formatting_issues.xlsx", sheetName = "ZeroSize", row.names = FALSE, append = TRUE)
-xlsx::write.xlsx(dormant_size, file = "Formatting_issues.xlsx", sheetName = "DormSize", row.names = FALSE, append = TRUE)
-xlsx::write.xlsx(fruit_noflower, file = "Formatting_issues.xlsx", sheetName = "FruitNoFlwr", row.names = FALSE, append = TRUE)
-
+# come_back <- lapply(new_tags, function(x) survival_find(x, find_long_dorm = TRUE)) %>%
+#   Reduce(function(...) rbind(...), .) %>%
+#   arrange(New_Tag, year_t1)
+# 
+# # missing size information even though the plant is not dormant and does survive (and sometimes flower)
+# missing_size <- subset(vr, surv_t1 == 1 & is.na(size_t1) & stage_t1 == "plant") %>%
+#   select(Site, New_Tag, year_t1, stage_t1, size_t1) %>%
+#   arrange(New_Tag, year_t1)
+# 
+# # survival= 1 and not dormant but size_t0 was 0
+# size_0 <- subset(vr, stage_t1 == "plant" & size_t1 == 0) %>%
+#   select(Site, New_Tag, year_t1, stage_t1, size_t1) %>%
+#   arrange(New_Tag, year_t1)
+# 
+# # how can dormant plants be associated with size_t0 NA?
+# dormant_size <- subset(vr, dormancy_t1 == 1 & !is.na(size_t1)) %>%
+#   select(Site, New_Tag, year_t1, stage_t1, size_t1) %>%
+#   arrange(New_Tag, year_t1)
+# 
+# # How can n_fruit_t1 be == 2 but n_flower_t1 NA?!?
+# fruit_noflower <- subset(vr, n_fruit_t1 == 2) %>%
+#   select(Site, New_Tag, year_t1, stage_t1, size_t1, flower_t1, n_flower_t1, n_fruit_t1) %>%
+#   arrange(New_Tag, year_t1)
+# 
+# # 633: In 1989 individual goes dormant, but we have size information. Is this a mistake?
+# # 170: In 1998 individual has 2 fruits, but no flower.
+# # 292: In 1999 individual has 2 fruits, but no flower.
+# 
+# # Export issues
+# 
+# xlsx::write.xlsx(come_back, file = "Formatting_issues.xlsx", sheetName = "ComeBack", row.names = FALSE)
+# xlsx::write.xlsx(missing_size, file = "Formatting_issues.xlsx", sheetName = "MissingSize", row.names = FALSE, append = TRUE)
+# xlsx::write.xlsx(size_0, file = "Formatting_issues.xlsx", sheetName = "ZeroSize", row.names = FALSE, append = TRUE)
+# xlsx::write.xlsx(dormant_size, file = "Formatting_issues.xlsx", sheetName = "DormSize", row.names = FALSE, append = TRUE)
+# xlsx::write.xlsx(fruit_noflower, file = "Formatting_issues.xlsx", sheetName = "FruitNoFlwr", row.names = FALSE, append = TRUE)
+# 

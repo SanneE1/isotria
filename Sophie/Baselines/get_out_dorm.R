@@ -17,8 +17,8 @@ max(a$duration_dorm)
 
 
 # get out of dormancy probability
-
-p_out <- mean(dorm$remain_dorm_t1, na.rm = TRUE)
+p_stay <- mean(dorm$remain_dorm_t1, na.rm = TRUE) 
+p_out <- 1 - p_stay
 
 ## exploratory plots
 #source("../../52 Scrap code/plot_binned_prop_df.R")
