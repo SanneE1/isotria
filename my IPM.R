@@ -118,18 +118,20 @@ d <- read.csv('data/isotria_long.csv')
 flower_n <- d[complete.cases(d$size_t0, d$surv_t1, d$Habitat_Man),] %>%
   subset(size_t0 != 0)  %>%
   mutate(size_t0 = log(size_t0))
-
+# creating a dataframe that excludes zeros 
 f<-d %>% filter(!is.na(n_flower_t1)) 
 
 f
 g<- f %>%filter(n_flower_t1 !=0)  
 g
 head(g)
+#creating a new collum that contains the number of fruits per flower
+#by deviding the number of fruits by the number of flowers
 g$n_fruits_per_flower<-g$n_fruit_t1/g$n_flower_t1
 g
 
-
- fruiting<- mean(g$n_fruits_per_flower, na.rm=TRUE)
+# getting the mean of friuts per flower
+fruiting<- mean(g$n_fruits_per_flower, na.rm=TRUE)
 fruiting
 
 
@@ -252,14 +254,9 @@ flx<-function(x,pars){
 fln<-function(x,pars){
   xb <- x_range(x, pars)
   # flowernumber of each x size class 
-  return( inv_logit(pars$flon_b0 + pars$flon_b1 * xb)) 
+  return( exp(pars$flon_b0 + pars$flon_b1 * xb)) 
 }
 
-# fruiting at size x
-fru<-function(x,pars){
-  xb <- x_range(x, pars)
-  return(flx(xb,pars)*(pars$fruiting))
-}  
 
 # propability to go dormant at size x
 dox<-function(x,pars){
@@ -279,7 +276,7 @@ b   <- L+c(0:n)*h                #Lower boundaries of bins
 y   <- 0.5*(b[1:n]+b[2:(n+1)])   #Bins' midpoints
 
 
-# Plot functions sx, flx, and dox.
+# Plot functions sx, flx,fln, and dox.
 tiff("function_plots.tiff", unit="cm", 
      width=16, height=16, res=400, compression="lzw")
 
@@ -290,13 +287,15 @@ plot(y, sx(y,pars), main = 'survival function',
      xlab = expression('y (that is: log size'[t]*')') )
 plot(y, flx(y,pars), main = 'flowering',
      xlab = expression('y (that is: log size'[t]*')') )
+plot(y, fln(y,pars), main = 'flowernumber',
+     xlab = expression('y (that is: log size'[t]*')') )
 plot(y, dox(y,pars), main = 'going dormant',
      xlab = expression('y (that is: log size'[t]*')') )
 
 dev.off()
+ 
 
-
-
+# filled in and workes up to this point
 # set up a population that contains 1 individual for each y size bin
 n_vec <- rep(1, length(y) )
 
