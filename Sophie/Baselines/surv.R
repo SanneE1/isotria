@@ -1,35 +1,36 @@
 library(dplyr)
-library(tidyr)
-library(testthat)
-library(lme4)
-library(bbmle)
-library(ggplot2)
+ library(tidyr)
+ library(testthat)
+ library(lme4)
+ library(bbmle)
+ library(ggplot2)
 
-## Read and format data
-d <- read.csv('data/isotria_long.csv')
+
+   ## Read and format data
+   d <- read.csv('data/isotria_long.csv')
 surv <- d[complete.cases(d$size_t0, d$surv_t1, d$Habitat_Man),] %>%
-  subset(size_t0 != 0)  %>%
-  mutate(size_t0 = log(size_t0),
-         size_t1 = log(size_t1))
+     subset(size_t0 != 0)  %>%
+     mutate(size_t0 = log(size_t0),
+            size_t1 = log(size_t1))
+ 
+   ## model options
+   
+   candidate_mods <- list(
+       "null" = surv_t1 ~ size_t0 + (1 | year_t1),
+       "site1" = surv_t1 ~ size_t0 * Site + (1 | year_t1),
+       "site2" = surv_t1 ~ size_t0 + Site + (1 | year_t1),
+       "yearsize" = surv_t1 ~ size_t0 + (size_t0 | year_t1),
+       "yearsize2" = surv_t1 ~ size_t0 + (0 + size_t0 | year_t1)
+     )
 
-## model options
-
-candidate_mods <- list(
-  "null" = surv_t1 ~ size_t0 + (1 | year_t1),
-  "site1" = surv_t1 ~ size_t0 * Site + (1 | year_t1),
-  "site2" = surv_t1 ~ size_t0 + Site + (1 | year_t1),
-  "yearsize" = surv_t1 ~ size_t0 + (size_t0 | year_t1),
-  "yearsize2" = surv_t1 ~ size_t0 + (0 + size_t0 | year_t1)
-)
-
-
+   
 surv_m    <- lapply( candidate_mods, 
-                     function(x) glmer(x, data=surv, family='binomial') )
+                                    function(x) glmer(x, data=surv, family='binomial') )
 
-compare <- as.data.frame(AICtab(surv_m, weights = TRUE, base = TRUE))
-
-## Overview of best model
-summary(surv_m[[row.names(compare)[1]]])
+   compare <- as.data.frame(AICtab(surv_m, weights = TRUE, base = TRUE))
+ 
+ ## Overview of best model
+   summary(surv_m[[row.names(compare)[1]]])
 plot(surv_m[[row.names(compare)[1]]])
 
 
