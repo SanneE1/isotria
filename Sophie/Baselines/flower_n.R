@@ -10,8 +10,11 @@ flower_n <- d[complete.cases(d$size_t0, d$surv_t1, d$Habitat_Man),] %>%
   subset(size_t0 != 0)  %>%
   mutate(size_t0 = log(size_t0))
 
-## model options
+# finding out the maximum number of flowers
+flower_n_max<- flower_n %>% filter(!is.na(n_flower_t1))
+max(flower_n_max$n_flower_t1)
 
+## model options
 candidate_mods <- list(
   "null" = n_flower_t1 ~ size_t0 + (1 | year_t1),
   "site1" = n_flower_t1 ~ size_t0 * Site + (1 | year_t1),
