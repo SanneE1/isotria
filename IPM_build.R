@@ -211,10 +211,10 @@ kernel <- function(pars){
   Tmat            <- matrix(0,(n+2),(n+2))
   
   # Graduation to 2-yo seed bank = pr(not germinating as 1-yo)
-  Tmat[2,1]       <- 1 - pars$germ1
+  Tmat[2,1]       <- 1 - pars$germ1 #stay dormant 1,1
   
   # Graduation from 1-yo bank to cts size = germination * size distn * pre-census survival
-  Tmat[3:(n+2),1] <- pars$germ1 * recruits(y,pars)*h   
+  Tmat[3:(n+2),1] <- pars$germ1 * recruits(y,pars)*h #get out of d * size   
   
   # Graduation from 2-yo bank to cts size = germination * size distn * pre-census survival
   Tmat[3:(n+2),2] <- pars$germ2 * recruits(y,pars)*h   
