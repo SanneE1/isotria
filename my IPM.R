@@ -1,7 +1,10 @@
 
 # IPM from data by aldo
 
-
+library(ggplot2)
+library(testthat)
+library(lme4)
+library(bbmle)
 library(dplyr)
 library(tidyr)
 library(lme4)
@@ -134,6 +137,26 @@ g
 fruiting<- mean(g$n_fruits_per_flower, na.rm=TRUE)
 fruiting
 
+# getting the mean and sd for the size distribution of new plants
+w1 <-isotria_long %>% filter(is.na(stage_t0) & stage_t1 == 'plant') 
+
+w2<-w %>%filter(!is.na(size_t1))
+new_plants_mean<-mean(w2$size_t1)
+new_plants_mean
+new_plants_sd<-sd(w2$size_t1)
+new_plants_sd
+
+# getting the mean and sd for the size distribution of woke plants
+k1<- isotria_long %>% filter(stage_t0=='dormant')
+l1<-k %>% filter(stage_t1=='plant')
+head(l1)
+l2<-l1 %>%filter(!is.na(size_t1))
+woke_plants_mean<-mean(l2$size_t1)
+woke_plants_mean
+woke_plants_sd<-sd(l2$size_t1)
+woke_plants_sd
+
+
 
 #2. Create the function to apply the inverse logit
 inv_logit<-function(x){
@@ -207,6 +230,10 @@ pars  <- list( surv_b0 = fixef(sr_mod)[1],
                p_stay = p_stay, 
                p_out = p_out,
                fruiting=fruiting,
+               new_plants_mean = new_plants_mean,
+               new_plants_sd = new_plants_sd,
+               woke_plants_mean = woke_plants_mean,
+               woke_plants_sd = woke_plants_sd,
                L       = min(iso$size_t0,na.rm=T),
                U       = max(iso$size_t0,na.rm=T),
                mat_siz = 50
@@ -264,8 +291,29 @@ dox<-function(x,pars){
   return( inv_logit(pars$dom_b0 + pars$dom_b1 * xb) )
 }
 
+# New recruits from size x to size y
+nrxy <- function(y,pars){
+  
+  # returns a *probability density distribution* for each x value
+  return( dnorm(y, 
+                mean = pars$new_plants_mean , 
+                sd   = pars$new_plants_sd) )
+}
 
+# woke plants from size x to size y
+woxy <- function(y,pars){
+  
+  # returns a *probability density distribution* for each x value
+  return( dnorm(y, 
+                mean = pars$woke_plants_mean , 
+                sd   = pars$woke_plants_sd) )
+}
 
+#fecundity
+fec<-function(x,y, pars){
+  xb <- x_range(x, pars)
+ return( flx(x,pars)*fln(x,pars)*pars$fruiting*nrxy(y,pars) )
+}
 # discretize the size distribution
 n   <- pars$mat_siz
 L   <- pars$L 
@@ -321,26 +369,36 @@ kernel <- function(pars){
   #these are the boundary points (b) and mesh points (y)
   
   # Fertility matrix
-  Fmat            <- matrix(0,(n+2),(n+2))
   
-  # Banked seeds go in top row
-  Fmat[1,3:(n+2)] <- fx(y,pars)
+  Fmat            <- matrix(0,(n+1),(n+1))
+  
+  Fmat[2:(n+1),
+       2:(n+1)] <-fec(x,y,pars)
+  
+  
+ --------------------------------------------------------------------------------------
+  
   
   # Growth/survival transition matrix
-  Tmat            <- matrix(0,(n+2),(n+2))
-  
-  # Graduation to 2-yo seed bank = pr(not germinating as 1-yo)
-  Tmat[2,1]       <- 1 - pars$germ1
-  
-  # Graduation from 1-yo bank to cts size = germination * size distn * pre-census survival
-  Tmat[3:(n+2),1] <- pars$germ1 * recruits(y,pars)*h   
-  
-  # Graduation from 2-yo bank to cts size = germination * size distn * pre-census survival
-  Tmat[3:(n+2),2] <- pars$germ2 * recruits(y,pars)*h   
+  Tmat            <- matrix(0,(n+1),(n+1))
   
   # Growth/survival transitions among cts sizes
-  Tmat[3:(n+2),
-       3:(n+2)]   <- t( outer(y,y,pxy,pars) )*h
+  Tmat[2:(n+1),
+       2:(n+1)]   <- t( outer(y,y,pxy,pars) )*h
+  
+ 
+  
+# Dormancy
+  # dormant plants wake up and go in top row
+  Tmat[1,3:(n+1)] <-dox(x,pars)  #get out of dormancy
+  
+  # dormant plants stay dormant for an other year
+  Tmat[1,1]       <- pars$p_stay #stay dormant 
+  
+  # Graduation from dormancy to cts size
+  Tmat[3:(n+1),1] <- dox(x,pars) * woxy(y,pars)*h #get out of d * size distn   
+  
+
   
   # Full Kernel is simply a summation of fertility and transition matrix
   k_yx          <- Fmat+Tmat     
