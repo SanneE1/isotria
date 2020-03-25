@@ -24,31 +24,9 @@ mutate(size_t0 = log(size_t0),
 View(iso)
 
 
-# Visualize data ---------------------------------------------------------------------
-#tiff("data/isotria_long.csv", unit="cm", 
-     #width=16, height=16, res=400, compression="lzw")
-
-#par( mfrow=c(1,1), mar = c(3.5,3.5,1,0.3), mgp = c(2,0.7,0) )
-#hist(isotria_long$size_t0, main="", 
-     #cex.lab=2, cex.axis=1.5, xlab = "viable_buds_t")
-#dev.off()
-#head(isotria_long)
-
-#isotria_long <- read.csv("data/isotria_long.csv") %>%
-  #subset(size_t0 != 0) %>%
-  #mutate(size_t0 = log(size_t0),
-         #size_t1 = log(size_t1))
-
-# View(isotria_long)
 
 
 # Visualize data ---------------------------------------------------------------------
-
-
-# Sophie: if you want to redo some exploratory plots here, that's alright. 
-# However you already did these in exploratoryplots.R
-# you can re-run this script using:
-# source("Sophie/exploratoryplots.R")
 
 #1. Plot survival, growth, flowerpropability, flowernumber, propabilyty to go dormant, propabilyty to go out of dormancy
 par( mfrow=c(2,2), mar = c(3.5,3.5,1,0.3), mgp = c(2,0.7,0) )
@@ -219,7 +197,7 @@ do_y_pred<-exp(do_b0+do_b1*(x_seq))
 pars  <- list( surv_b0 = fixef(sr_mod)[1],
                surv_b1 = fixef(sr_mod)[2],
                grow_b0 = fixef(gr_mod)[1],
-               grow_b0 = fixef(gr_mod)[2],
+               grow_b1 = fixef(gr_mod)[2],
                grow_sd = summary(gr_mod)$sigma,
                flop_b0 = fixef(flowpop_mod)[1],
                flop_b1 = fixef(flowpop_mod)[2],
@@ -239,9 +217,12 @@ pars  <- list( surv_b0 = fixef(sr_mod)[1],
                mat_siz = 50
 )
 (pars$surv_b0)
+pars
 # functions 
 
 # Transforms all values below/above limits in min/max size
+x<- seq(min(iso$size_t0),
+        max(iso$size_t0), length.out = n)
 x_range <- function(x,pars){
   pmin(pmax(x,pars$L),pars$U)
 }
@@ -312,7 +293,7 @@ woxy <- function(y,pars){
 #fecundity
 fec<-function(x,y, pars){
   xb <- x_range(x, pars)
- return( flx(x,pars)*fln(x,pars)*pars$fruiting*nrxy(y,pars) )
+ return( flx(xb,pars)*fln(xb,pars)*pars$fruiting*nrxy(y,pars) )
 }
 # discretize the size distribution
 n   <- pars$mat_siz
@@ -376,27 +357,25 @@ kernel <- function(pars){
        2:(n+1)] <-fec(x,y,pars)
   
   
- --------------------------------------------------------------------------------------
-  
+ 
   
   # Growth/survival transition matrix
-  Tmat            <- matrix(0,(n+1),(n+1))
+  Tmat       <- matrix(0,(n+1),(n+1))
   
   # Growth/survival transitions among cts sizes
   Tmat[2:(n+1),
        2:(n+1)]   <- t( outer(y,y,pxy,pars) )*h
   
- 
   
 # Dormancy
-  # dormant plants wake up and go in top row
-  Tmat[1,3:(n+1)] <-dox(x,pars)  #get out of dormancy
+  # living  plants go dormant and go in top row
+  Tmat[1,2:(n+1)] <-dox(x,pars)  #get in to  dormancy
   
   # dormant plants stay dormant for an other year
   Tmat[1,1]       <- pars$p_stay #stay dormant 
   
   # Graduation from dormancy to cts size
-  Tmat[3:(n+1),1] <- dox(x,pars) * woxy(y,pars)*h #get out of d * size distn   
+  Tmat[2:(n+1),1] <- pars$p_out * woxy(y,pars)*h #get out of d * size distn   
   
 
   
@@ -409,7 +388,8 @@ kernel <- function(pars){
               meshpts = y))
   
 }
-
+k_yx
+kernel(pars = pars)
 # Deterministic lambda
 lambda <- Re(eigen(kernel(pars)$k_yx)$value[1])
 
