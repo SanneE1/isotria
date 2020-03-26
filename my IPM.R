@@ -90,9 +90,8 @@ l1<-k1 %>% filter(stage_t1=='plant')
 
 l2<-l1 %>%filter(!is.na(size_t1))
 woke_plants_mean<-mean(l2$size_t1)
-woke_plants_mean
 woke_plants_sd<-sd(l2$size_t1)
-woke_plants_sd
+
 
 
 
@@ -101,7 +100,7 @@ inv_logit<-function(x){
   exp(x)/(1+exp(x))}
 
 
-#3. Plot the three opuntia models, and the histogram of recruitment size
+#3. Plot the three isotria models
 
 # plot models
 par( mfrow=c(2,2), mar = c(3,3,1,0.3), mgp = c(2,0.7,0) )
@@ -109,7 +108,7 @@ plot(glmer(surv_t1 ~ size_t0 + size_t0 | year_t1), data = iso, family = binomial
 lines(x_seq,sr_y_pred,col="red")
 plot(lm(size_t1 ~ size_t0 + (size_t0 | year_t1), data = iso_gr) )
 lines(x_seq,gr_y_pred,col="red")
-plot(glmer(flower_t1 ~ size_t0 * Site + (1 | year_t1),data= iso))
+plot(glmer(flower_t1 ~ size_t0 * Site + (1 | year_t1),data= iso,family =binomial))
 lines(x_seq,flp_y_pred,col="red")
 plot(glmer(n_flower_t1 ~ size_t0 + Site + (1 | year_t1), data= iso, family = poisson()))
 lines(x_seq,fln_y_pred,col="red")
@@ -134,19 +133,23 @@ gr_y_pred<-(gr_b0 + gr_b1 *(x_seq))
 #flowpop_mod
 flp_b0<-fixef(flowpop_mod)[1]
 flp_b1<-fixef(flowpop_mod)[2]
-flp_y_pred<-exp(flp_b0+flp_b1*(x_seq))   ### this doesn't follow the model
-
+flp_b2<-fixef(flowpop_mod)[3]
+flp_b3<-fixef(flowpop_mod)[4]
+flp_y_pred<-exp(flp_b0+flp_b1flp_b2+flp_b3*(x_seq))   ### this doesn't follow the model
 
 #flower_n_mod
 fln_b0<-fixef(flower_n_mod)[1]
 fln_b1<-fixef(flower_n_mod)[2]
-fln_y_pred<-exp(fln_b0+fln_b1*(x_seq))   ### this doesn't follow the model
+fln_b2<-fixef(flower_n_mod)[3]
+fln_y_pred<-exp(fln_b0+fln_b1+ fln_b2*(x_seq))   ### this doesn't follow the model
 
 
 #dorm_mod
 do_b0<-fixef(dorm_mod)[1]
 do_b1<-coef(dorm_mod)[2]
-do_y_pred<-exp(do_b0+do_b1*(x_seq)) ### this doesn't follow the model
+do_b2<-coef(dorm_mod)[3]
+do_b3<-coef(dorm_mod)[4]
+do_y_pred<-exp(do_b0+do_b1+do_b2+do_b3*(x_seq)) ### this doesn't follow the model
 
 
 # IPM functions -------------------------------------------------------------
