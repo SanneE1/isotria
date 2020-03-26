@@ -1,11 +1,7 @@
 library(dplyr)
 library(ggplot2)
 
-isotria_long <- read_csv("data/isotria_long.csv")
-
-View(isotria_long)
- 
-library("ggplot2", lib.loc="~/R/win-library/3.5")
+isotria_long <- read.csv("data/isotria_long.csv")
 
  
  # log(size_t0) vs log(size_t1)
@@ -38,18 +34,18 @@ logitbin_df <- function (df, resp, xvar, ..., n =100, log_trans_xvar = FALSE) {
     }
     
     df <- df %>%
-      filter(!! xvar > 0) %>%
-      mutate(!! xvar := log(!! xvar))
+      dplyr::filter(!! xvar > 0) %>%
+      dplyr::mutate(!! xvar := log(!! xvar))
     
   }
   
   df <- df %>%
-    group_by(...) %>%
-    mutate(bingroup = cut(!! xvar, breaks = n))
+    dplyr::group_by(...) %>%
+    dplyr::mutate(bingroup = cut(!! xvar, breaks = n))
   
   df <- df %>%
-    group_by(..., bingroup) %>%
-    summarize(!! resp := mean(!! resp), !! xvar := mean(!! xvar))
+    dplyr::group_by(..., bingroup) %>%
+    dplyr::summarize(!! resp := mean(!! resp), !! xvar := mean(!! xvar))
   
   return(df)
 }
