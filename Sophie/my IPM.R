@@ -19,30 +19,21 @@ iso<-read.csv("data/isotria_long.csv") %>%
   mutate(size_t0 = log(size_t0),
          size_t1 = log(size_t1))
 
+iso$size_t1[which(iso$size_t1 < -999)] <- NA
 
 # fit models 
 
-sr_mod  <- glmer(surv_t1 ~ size_t0 + (size_t0 | year_t1), data = iso %>% 
-                             filter(!is.na(surv_t1) & (!is.na(size_t0))), family = 'binomial' )
+sr_mod  <- glmer(surv_t1 ~ size_t0 + (size_t0 | year_t1), data = iso, family = 'binomial' )
+
+gr_mod  <- lmer(size_t1 ~ size_t0 + (size_t0 | year_t1), data = iso)
+
+flowpop_mod <- glmer(flower_t1 ~ size_t0 * Site + (1 | year_t1),data= iso, family = 'binomial')
 
 
-# creating a dataframe that excludes size_t0 = 0  and size_t1 = 0 and allso makes size_t0 and size_t0 logarythmic
-iso_gr<-iso %>%
-  subset(size_t1 > -999)
-
-gr_mod  <- lmer(size_t1 ~ size_t0 + (size_t0 | year_t1), data = iso_gr %>% 
-              filter(!is.na(size_t1) & (!is.na(size_t0))))
-
-flowpop_mod <- glmer(flower_t1 ~ size_t0 * Site + (1 | year_t1),data= iso%>%
-                       filter(!is.na(flower_t1) & (!is.na(size_t0))), family = 'binomial')
+flower_n_mod <-glmer(n_flower_t1 ~ size_t0 + Site + (1 | year_t1), data = iso, family = 'poisson')
 
 
-flower_n_mod <-glmer(n_flower_t1 ~ size_t0 + Site + (1 | year_t1), data = iso %>%
-                       filter(!is.na(n_flower_t1) & (!is.na(size_t0))) , family = 'poisson')
-
-
-dorm_mod<-glmer(dormancy_t1 ~ size_t0 * Site + (1 | year_t1),data = iso%>%
-                  filter(!is.na(dormancy_t1) & (!is.na(size_t0))), family = 'binomial')
+dorm_mod<-glmer(dormancy_t1 ~ size_t0 * Site + (1 | year_t1),data = iso, family = 'binomial')
 
 
 
@@ -53,7 +44,6 @@ dorm <- d[which( d$surv_t1 == 1),]
 
 # quick check if there are individuals that remain in dormancy more than one year
 a <- ddply(dorm[which(!is.na(dorm$remain_dorm_t1)),], .(New_Tag), transform, duration_dormancy = cumsum(remain_dorm_t1))
-max(a$duration_dorm)
 
 # get out of dormancy probability
 
@@ -80,73 +70,21 @@ g$n_fruits_per_flower<-g$n_fruit_t1/g$n_flower_t1
 fruiting<- mean(g$n_fruits_per_flower, na.rm=TRUE)
 
 # getting the mean and sd for the size distribution of new plants
-w1 <-d %>% filter(is.na(stage_t0) & stage_t1 == 'plant' & !is.na(size_t1)) 
-new_plants_mean<-mean(w1$size_t1)
-new_plants_sd<-sd(w1$size_t1)
+w1 <-d %>% filter(is.na(stage_t0) & stage_t1 == 'plant') 
+new_plants_mean<-mean(w1$size_t1, na.rm = T)
+new_plants_sd<-sd(w1$size_t1, na.rm = T)
 
 # getting the mean and sd for the size distribution of woke plants
-k1<- d %>% filter(stage_t0=='dormant')
-l1<-k1 %>% filter(stage_t1=='plant')
+k1<- d %>% filter(stage_t0=='dormant' & stage_t1 == 'plant' )
 
-l2<-l1 %>%filter(!is.na(size_t1))
-woke_plants_mean<-mean(l2$size_t1)
-woke_plants_mean
-woke_plants_sd<-sd(l2$size_t1)
-woke_plants_sd
+woke_plants_mean<-mean(k1$size_t1, na.rm = T)
+woke_plants_sd<-sd(k1$size_t1, na.rm = T)
 
 
 
 #2. Create the function to apply the inverse logit
 inv_logit<-function(x){
   exp(x)/(1+exp(x))}
-
-
-#3. Plot the three opuntia models, and the histogram of recruitment size
-
-# plot models
-par( mfrow=c(2,2), mar = c(3,3,1,0.3), mgp = c(2,0.7,0) )
-plot(glmer(surv_t1 ~ size_t0 + size_t0 | year_t1), data = iso, family = binomial )
-lines(x_seq,sr_y_pred,col="red")
-plot(lm(size_t1 ~ size_t0 + (size_t0 | year_t1), data = iso_gr) )
-lines(x_seq,gr_y_pred,col="red")
-plot(glmer(flower_t1 ~ size_t0 * Site + (1 | year_t1),data= iso))
-lines(x_seq,flp_y_pred,col="red")
-plot(glmer(n_flower_t1 ~ size_t0 + Site + (1 | year_t1), data= iso, family = poisson()))
-lines(x_seq,fln_y_pred,col="red")
-plot(glmer(dormancy_t1 ~ size_t0 * Site + (1 | year_t1),data = iso, family = binomial()))
-lines(x_seq,do_y_pred,col="red")
-
-
-# sequence of X values
-x_seq <- seq(min(iso$size_t0, na.rm=T), 
-             max(iso$size_t0, na.rm=T), by = 0.1)
-
-#sr
-sr_b0<-fixef(sr_mod)[1]
-sr_b1<-fixef(sr_mod)[2]
-sr_y_pred<-(sr_b0 + sr_b1*(x_seq))
-
-#gr
-gr_b0<-fixef(gr_mod)[1]
-gr_b1<-fixef(gr_mod)[2]
-gr_y_pred<-(gr_b0 + gr_b1 *(x_seq))
-
-#flowpop_mod
-flp_b0<-fixef(flowpop_mod)[1]
-flp_b1<-fixef(flowpop_mod)[2]
-flp_y_pred<-exp(flp_b0+flp_b1*(x_seq))   ### this doesn't follow the model
-
-
-#flower_n_mod
-fln_b0<-fixef(flower_n_mod)[1]
-fln_b1<-fixef(flower_n_mod)[2]
-fln_y_pred<-exp(fln_b0+fln_b1*(x_seq))   ### this doesn't follow the model
-
-
-#dorm_mod
-do_b0<-fixef(dorm_mod)[1]
-do_b1<-coef(dorm_mod)[2]
-do_y_pred<-exp(do_b0+do_b1*(x_seq)) ### this doesn't follow the model
 
 
 # IPM functions -------------------------------------------------------------
@@ -182,9 +120,6 @@ pars  <- list( surv_b0 = fixef(sr_mod)[1],
                mat_siz = 50
 )
 
-# functions 
-x<- seq(min(iso$size_t0),
-        max(iso$size_t0), length.out = n)
 
 # Transforms all values below/above limits in min/max size
 
@@ -209,9 +144,9 @@ sx<-function(x,pars){
 }
 
 # transition: Survival * growth
-pxy<-function(x,y,pars){
+pxy<-function(x,y,pars, site){
   xb <- x_range(x, pars)
-  return( sx(xb,pars) * gxy(xb,y,pars) )
+  return( sx(xb,pars) * (1 - dox(xb, pars, site)) * gxy(xb,y,pars) )
 }
 
 
@@ -298,11 +233,11 @@ kernel <- function(pars, site){
   
   # Growth/survival transitions among cts sizes
   Tmat[2:(n+1),
-       2:(n+1)]   <- t( outer(y,y,pxy,pars)* h )
+       2:(n+1)]   <- t( outer(y,y,pxy,pars, site)* h )
   
 # Dormancy
   # living  plants go dormant and go in top row
-  Tmat[1,2:(n+1)] <-dox(y,pars,site)  #get in to  dormancy
+  Tmat[1,2:(n+1)] <-  dox(y,pars,site)  #get in to  dormancy
   
   # dormant plants stay dormant for an other year
   Tmat[1,1]       <- pars$p_stay #stay dormant 
@@ -323,7 +258,8 @@ kernel <- function(pars, site){
 }
 
 # there are 4 sites (numbered 1-4)
-kernel(pars, site = 1)
+
+# K_site1 <- kernel(pars, site = 1)
 
 # Deterministic lambda
 

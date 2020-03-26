@@ -33,7 +33,7 @@ df$gr<-df$n_now/df$n_past
 dfc<- df[complete.cases( df$gr),]
 
 # getting the mean growthrate 
- mean_gr<-mean(dfc$gr)
+ mean_gr<-dfc$gr %>% log %>% mean %>% exp
 
 
 
