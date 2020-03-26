@@ -128,7 +128,7 @@ x_range <- function(x,pars){
 }
 
 # Growth (transition) from size x to size y
-gxy <- function(x,y,pars){
+gxy <- function(y, x, pars){
   xb <- x_range(x, pars)
   # returns a *probability density distribution* for each x value
   return( dnorm(y, 
