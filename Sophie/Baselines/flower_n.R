@@ -8,7 +8,8 @@ library(bbmle)
 d <- read.csv('data/isotria_long.csv')
 flower_n <- d[complete.cases(d$size_t0, d$surv_t1, d$Habitat_Man),] %>%
   subset(size_t0 != 0)  %>%
-  mutate(size_t0 = log(size_t0))
+  mutate(size_t0 = log(size_t0),
+         Site = as.factor(Site))
 
 # finding out the maximum number of flowers
 flower_n_max<- flower_n %>% filter(!is.na(n_flower_t1))
@@ -24,7 +25,7 @@ candidate_mods <- list(
 )
 
 ### The AIC score for both sites are almoste equal. I therefor suggest using site2 as
-# this one probably overfits less
+# this one probably overfits less and site1 has convergence warnings
 
 flwrn_m    <- lapply( candidate_mods, 
                       function(x) glmer(x, data=flower_n, family='poisson') )

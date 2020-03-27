@@ -11,7 +11,8 @@ library(dplyr)
 surv <- d[complete.cases(d$size_t0, d$surv_t1, d$Habitat_Man),] %>%
      subset(size_t0 != 0)  %>%
      mutate(size_t0 = log(size_t0),
-            size_t1 = log(size_t1))
+            size_t1 = log(size_t1),
+            Site = as.factor(Site))
  
    ## model options
    

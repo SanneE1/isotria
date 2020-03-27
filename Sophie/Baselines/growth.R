@@ -9,7 +9,8 @@ d <- read.csv('data/isotria_long.csv')
 growth <- d[complete.cases(d$size_t0, d$size_t1, d$Habitat_Man),] %>%
   subset(stage_t0 == "plant" & stage_t1 == "plant" & size_t0 != 0 & size_t1 != 0)  %>%
   mutate(size_t0 = log(size_t0),
-         size_t1 = log(size_t1))
+         size_t1 = log(size_t1),
+         Site = as.factor(Site))
 
 ## model options
 

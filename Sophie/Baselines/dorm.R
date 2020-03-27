@@ -9,7 +9,8 @@ library(ggplot2)
 d <- read.csv('data/isotria_long.csv')
 dorm <- d[complete.cases(d$size_t0, d$Habitat_Man, d$dormancy_t1),] %>%
   subset(size_t0 != 0)  %>%
-  mutate(size_t0 = log(size_t0))
+  mutate(size_t0 = log(size_t0),
+         Site = as.factor(Site))
 
 #quick check if there are individuals that go into dormancy more than once
 a <- ddply(dorm[which(!is.na(dorm$dormancy_t1)),], .(New_Tag), transform, N_dormancy = cumsum(dormancy_t1))
@@ -31,8 +32,8 @@ dorm_m    <- lapply( candidate_mods,
 compare <- as.data.frame(AICtab(dorm_m, weights = TRUE, base = TRUE))
 
 ## Overview of best model
-summary(dorm_m[[row.names(compare)[1]]])
-plot(dorm_m[[row.names(compare)[1]]])
+summary(dorm_m[[row.names(compare)[2]]])
+plot(dorm_m[[row.names(compare)[2]]])
 
 
 ## exploratory plots
