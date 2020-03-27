@@ -56,7 +56,7 @@ germ_mod<-lmer(proportion ~ Site + (1 | year_t1), data= iso_rec_fruit)
 # dormancy probabilities
 dorm <- iso[which( iso$surv_t1 == 1),] 
 
-p_stay <- mean(dorm$remain_dorm_t1, na.rm = TRUE) 
+p_stay <- mean(dorm$remain_dorm_t1, na.rm = T)
 p_out <- 1 - p_stay
 
 
@@ -117,6 +117,10 @@ pars  <- list( surv_b0 = fixef(sr_mod)[1],
                dom_b0 = fixef(dorm_mod)[1],
                dom_b1 = fixef (dorm_mod)[2],
                ge_b0 = fixef(germ_mod)[1],
+               ge_site = list(0,
+                              fixef(germ_mod)[2],
+                              fixef(germ_mod)[3],
+                              fixef(germ_mod)[4]),
                p_stay = p_stay, 
                p_out = p_out,
                fruiting=fruiting,
@@ -207,7 +211,7 @@ woxy <- function(y,pars, h){
 #fecundity
 fec<-function(x,y, pars, h, site){
   xb <- x_range(x, pars)
- return( flx(xb,pars, site) * fln(xb,pars, site) * pars$fruiting * pars$ge_b0 * nrxy(y,pars, h) )
+ return( flx(xb,pars, site) * fln(xb,pars, site) * pars$fruiting * (pars$ge_b0 + pars$ge_site[[site]]) * nrxy(y,pars, h) )
 }
 
 
@@ -231,7 +235,7 @@ kernel <- function(pars, site){
   Fmat            <- matrix(0,(n+1),(n+1))
   
   Fmat[2:(n+1),
-       2:(n+1)] <-fec(y, y, pars, h, site)
+       2:(n+1)] <- fec(y, y, pars, h, site)
   
   
  
