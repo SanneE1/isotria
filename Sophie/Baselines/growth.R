@@ -11,6 +11,8 @@ growth <- d[complete.cases(d$size_t0, d$size_t1, d$Habitat_Man),] %>%
   mutate(size_t0 = log(size_t0),
          size_t1 = log(size_t1),
          Site = as.factor(Site))
+# iso$size_t1[which(iso$size_t1 < -999)] <- NA
+# iso$size_t0[which(iso$size_t0 < -999)] <- NA
 
 ## model options
 

@@ -5,12 +5,8 @@ library(ggplot2)
 library(patchwork)
 
 # read data --------------------------------------------------------------------------------------------------
-iso <- read.csv("data/isotria_long.csv") %>%
-  subset(size_t0 != 0) %>%
-  mutate(size_t0 = log(size_t0),
-         size_t1 = log(size_t1))
 
-iso$size_t1[which(iso$size_t1 < -999)] <- NA
+source(textConnection(readLines("Sophie/my IPM.R")[c(1:136)]))
 
 # create logit binned function --------------------------------------------------------------------------------------------------
 
@@ -44,18 +40,6 @@ logitbin_df <- function (df, resp, xvar, ..., n =100, log_trans_xvar = FALSE) {
 
 # fit models --------------------------------------------------------------------------------------------------
 
-sr_mod  <- glmer(surv_t1 ~ size_t0 + (size_t0 | year_t1), data = iso , family = 'binomial' )
-
-
-gr_mod  <- lmer(size_t1 ~ size_t0 + (size_t0 | year_t1), data = iso)
-
-flowpop_mod <- glmer(flower_t1 ~ size_t0 * Site + (1 | year_t1),data= iso, family = 'binomial')
-
-
-flower_n_mod <-glmer(n_flower_t1 ~ size_t0 + Site + (1 | year_t1), data = iso , family = 'poisson')
-
-
-dorm_mod<-glmer(dormancy_t1 ~ size_t0 * Site + (1 | year_t1),data = iso, family = 'binomial')
 
 
 ### Create inverse logit function--------------------------------------------------------------------------------------------------
