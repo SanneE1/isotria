@@ -30,11 +30,9 @@ sr_mod  <- glmer(surv_t1 ~ size_t0 + Site + (1 | year_t1), data = iso, family = 
 
 gr_mod  <- lmer(size_t1 ~ size_t0 + (size_t0 | year_t1), data = iso)
 
-flowpop_mod <- glmer(flower_t1 ~ size_t0 * Site + (1 | year_t1),data= iso, family = 'binomial')
-
+flowpop_mod <- glmer(flower_t1 ~ size_t0 + Site + (1 | year_t1),data= iso, family = 'binomial')
 
 flower_n_mod <-glmer(n_flower_t1 ~ size_t0 + Site + (1 | year_t1), data = iso, family = 'poisson')
-
 
 dorm_mod<-glmer(dormancy_t1 ~ size_t0 + (1 | year_t1), data = iso, family = 'binomial')
 
@@ -106,10 +104,6 @@ pars  <- list( surv_b0 = fixef(sr_mod)[1],
                                 fixef(flowpop_mod)[3],
                                 fixef(flowpop_mod)[4],
                                 fixef(flowpop_mod)[5]),
-               flop_int = list(0,
-                               fixef(flowpop_mod)[6],
-                               fixef(flowpop_mod)[7],
-                               fixef(flowpop_mod)[8]),
                flon_b0 = fixef(flower_n_mod)[1],
                flon_b1 = fixef(flower_n_mod)[2],
                flon_site = list(0,
@@ -170,8 +164,7 @@ flx<-function(x,pars, site){
   # flowering  prob. of each x size class 
   return( inv_logit(pars$flop_b0 + 
                     pars$flop_b1 * xb +
-                    pars$flop_size[[site]] +
-                    pars$flop_int[[site]] * xb ) )
+                    pars$flop_size[[site]] ) )
 }
 
 
@@ -250,7 +243,7 @@ kernel <- function(pars, site){
   
 # Dormancy
   # living  plants go dormant and go in top row
-  Tmat[1,2:(n+1)] <-  dox(y,pars)  #get in to  dormancy
+  Tmat[1,2:(n+1)] <-  sx(y,pars, site) * dox(y,pars)  #get in to  dormancy
   
   # dormant plants stay dormant for an other year
   Tmat[1,1]       <- pars$p_stay #stay dormant 
