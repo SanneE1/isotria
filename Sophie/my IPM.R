@@ -19,6 +19,8 @@ iso<-read.csv("data/isotria_long.csv") %>%
          size_t1 = log(size_t1),
          Site = as.factor(Site))
 
+
+
 iso$size_t0[which(iso$size_t0 < -999)] <- NA
 iso$size_t1[which(iso$size_t1 < -999)] <- NA
 
@@ -132,7 +134,6 @@ pars  <- list( surv_b0 = fixef(sr_mod)[1],
                U       = max(iso$size_t0,na.rm=T),
                mat_siz = 50
 )
-
 
 # Transforms all values below/above limits in min/max size
 
