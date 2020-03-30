@@ -33,7 +33,7 @@ logitbin_df <- function (df, resp, xvar, ..., n =100, log_trans_xvar = FALSE) {
   
   df <- df %>%
     dplyr::group_by(..., bingroup) %>%
-    dplyr::summarize(!! resp := mean(!! resp), !! xvar := mean(!! xvar))
+    dplyr::summarize(!! resp := mean(!! resp, na.rm = T), !! xvar := mean(!! xvar, na.rm = T))
   
   return(df)
 }
@@ -82,7 +82,7 @@ do_y_pred<-cbind(pred_df,
 ### Plot predictions
 
 Surv <- ggplot() +
-  geom_point(data = logitbin_df(df = iso, resp = surv_t1, xvar = size_t0, Site), 
+  geom_point(data = logitbin_df(df = iso, resp = surv_t1, xvar = size_t0, n = 10, Site), 
              aes(x = size_t0, y = surv_t1, colour = Site)) + 
   geom_line(data = sr_y_pred, 
             aes(x = size_t0, y = pred, colour = Site))
@@ -95,19 +95,19 @@ Growth <- ggplot() +
             colour = "red")
 
 Flwr_p <- ggplot() +
-  geom_point(data = logitbin_df(df = iso, resp = flower_t1, xvar = size_t0, Site), 
+  geom_point(data = logitbin_df(df = iso, resp = flower_t1, xvar = size_t0, n = 10, Site), 
              aes(x = size_t0, y = flower_t1, colour = Site)) + 
   geom_line(data = flp_y_pred %>% mutate(Site = as.factor(Site)), 
             aes(x = size_t0, y = pred, colour = Site))
 
 Flwr_n <- ggplot() +
-  geom_point(data = iso %>% mutate(Site = as.factor(Site)), 
+  geom_point(data = iso, 
              aes(x = size_t0, y = n_flower_t1, colour = Site)) + 
   geom_line(data = fln_y_pred %>% mutate(Site = as.factor(Site)), 
             aes(x = size_t0, y = pred, colour = Site))
 
 Dorm <- ggplot() +
-  geom_point(data = logitbin_df(df = iso, resp = dormancy_t1, xvar = size_t0, Site), 
+  geom_point(data = logitbin_df(df = iso, resp = dormancy_t1, xvar = size_t0, n = 10, Site), 
              aes(x = size_t0, y = dormancy_t1)) + 
   geom_line(data = do_y_pred, 
             aes(x = size_t0, y = pred),

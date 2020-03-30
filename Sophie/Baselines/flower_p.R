@@ -6,10 +6,12 @@ library(bbmle)
 
 ## Read and format data
 d <- read.csv('data/isotria_long.csv')
-flower_p <- d[complete.cases(d$size_t0, d$surv_t1, d$Habitat_Man),] %>%
-  subset(size_t0 != 0)  %>%
+flower_p <- d %>%
   mutate(size_t0 = log(size_t0),
          Site = as.factor(Site))
+
+flower_p$size_t0[which(flower_p$size_t0 < -999)] <- NA
+flower_p$size_t1[which(flower_p$size_t1 < -999)] <- NA
 
 ## model options
 
