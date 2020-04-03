@@ -35,7 +35,7 @@ library(ggplot2)
             
     
     iso$size_t1[which(iso$size_t1 < -999)] <- NA
-    str(iso)
+    
     
  # fit models 
     
@@ -73,9 +73,9 @@ library(ggplot2)
  abort_r
                    
 # recruit number
-  rec_n_df <- re_df %>% 
-  count(Site, year_t1) %>% 
-    rename( rec_n_t1 = n )
+ rec_n_df <- re_df %>% 
+   count(Site, year_t1) %>% 
+   dplyr::rename( rec_n_t1 = n )
   
  # Recruits by number of flowers
     rec_by_flow <- iso %>%
@@ -156,22 +156,97 @@ library(ggplot2)
                                                  fixef(sr_mod)[3],
                                                  fixef(sr_mod)[4],
                                                  fixef(sr_mod)[5]),
+                                                 surv_yr= list("1987"=ranef(sr_mod)$year_t1[1,],
+                                                               "1988"=ranef(sr_mod)$year_t1[2,],
+                                                               "1989"=ranef(sr_mod)$year_t1[3,],
+                                                               "1990"=ranef(sr_mod)$year_t1[4,],
+                                                               "1991"=ranef(sr_mod)$year_t1[5,],
+                                                               "1992"=ranef(sr_mod)$year_t1[6,],
+                                                               "1993"=ranef(sr_mod)$year_t1[7,],
+                                                               "1994"=ranef(sr_mod)$year_t1[8,],
+                                                               "1995"=ranef(sr_mod)$year_t1[9,],
+                                                               "1996"=ranef(sr_mod)$year_t1[10,],
+                                                               "1997"=ranef(sr_mod)$year_t1[11,],
+                                                               "1998"=ranef(sr_mod)$year_t1[12,],
+                                                               "1999"=ranef(sr_mod)$year_t1[13,],
+                                                               "2000"=ranef(sr_mod)$year_t1[14,]),                 
                      grow_b0 = fixef(gr_mod)[1],
                      grow_b1 = fixef(gr_mod)[2],
                      grow_sd = summary(gr_mod)$sigma,
+                     grow_yr_in = list("1987"= ranef(gr_mod)$year_t1[1,1],
+                                       "1988"=ranef(gr_mod)$year_t1[2,1],
+                                       "1989"=ranef(gr_mod)$year_t1[3,1],
+                                       "1990"=ranef(gr_mod)$year_t1[4,1],
+                                       "1991"=ranef(gr_mod)$year_t1[5,1],
+                                       "1992"=ranef(gr_mod)$year_t1[6,1],
+                                       "1993"=ranef(gr_mod)$year_t1[7,1],
+                                       "1994"= ranef(gr_mod)$year_t1[8,1],
+                                       "1995"=ranef(gr_mod)$year_t1[9,1],
+                                       "1996"= ranef(gr_mod)$year_t1[10,1],
+                                       "1997"=ranef(gr_mod)$year_t1[11,1],
+                                       "1998"=ranef(gr_mod)$year_t1[12,1],
+                                       "1999"=ranef(gr_mod)$year_t1[13,1],
+                                       "2000"=ranef(gr_mod)$year_t1[14,1]
+                                        ),
+                     grow_yr_slope = list("1987"= ranef(gr_mod)$year_t1[1,2],
+                                          "1988"=ranef(gr_mod)$year_t1[2,2],
+                                          "1989"=ranef(gr_mod)$year_t1[3,2],
+                                          "1990"=ranef(gr_mod)$year_t1[4,2],
+                                          "1991"=ranef(gr_mod)$year_t1[5,2],
+                                          "1992"=ranef(gr_mod)$year_t1[6,2],
+                                          "1993"=ranef(gr_mod)$year_t1[7,2],
+                                          "1994"= ranef(gr_mod)$year_t1[8,2],
+                                          "1995"=ranef(gr_mod)$year_t1[9,2],
+                                          "1996"= ranef(gr_mod)$year_t1[10,2],
+                                          "1997"=ranef(gr_mod)$year_t1[11,2],
+                                          "1998"=ranef(gr_mod)$year_t1[12,2],
+                                          "1999"=ranef(gr_mod)$year_t1[13,2],
+                                          "2000"=ranef(gr_mod)$year_t1[14,2]
+                     ),
+                               
                      flop_b0 = fixef(flowpop_mod)[1],
                      flop_b1 = fixef(flowpop_mod)[2],
                                flop_site = list(0,
                                                   fixef(flowpop_mod)[3],
                                                   fixef(flowpop_mod)[4],
                                                   fixef(flowpop_mod)[5]),
+                                                  flop_yr= list("1987"=ranef(flowpop_mod)$year_t1[1,],
+                                                                "1988"=ranef(flowpop_mod)$year_t1[2,],
+                                                                "1989"=ranef(flowpop_mod)$year_t1[3,],
+                                                                "1990"=ranef(flowpop_mod)$year_t1[4,],
+                                                                "1991"=ranef(flowpop_mod)$year_t1[5,],
+                                                                "1992"=ranef(flowpop_mod)$year_t1[6,],
+                                                                "1993"=ranef(flowpop_mod)$year_t1[7,],
+                                                                "1994"=ranef(flowpop_mod)$year_t1[8,],
+                                                                "1995"=ranef(flowpop_mod)$year_t1[9,],
+                                                                "1996"=ranef(flowpop_mod)$year_t1[10,],
+                                                                "1997"=ranef(flowpop_mod)$year_t1[11,],
+                                                                "1998"=ranef(flowpop_mod)$year_t1[12,],
+                                                                "1999"=ranef(flowpop_mod)$year_t1[13,],
+                                                                "2000"=ranef(flowpop_mod)$year_t1[14,]
+                     ),
                      flon_b0 = fixef(flower_n_mod)[1],
                      flon_b1 = fixef(flower_n_mod)[2],
                                    flon_site = list(0,
                                                       fixef(flower_n_mod)[3],
                                                       fixef(flower_n_mod)[4],
                                                       fixef(flower_n_mod)[5]),
-                   #dom_b0 = fixef(dorm_mod)[1],
+                                                      flon_yr= list("1987"=ranef(flower_n_mod)$year_t1[1,],
+                                                                    "1988"=ranef(flower_n_mod)$year_t1[2,],
+                                                                    "1989"=ranef(flower_n_mod)$year_t1[3,],
+                                                                    "1990"=ranef(flower_n_mod)$year_t1[4,],
+                                                                    "1991"=ranef(flower_n_mod)$year_t1[5,],
+                                                                    "1992"=ranef(flower_n_mod)$year_t1[6,],
+                                                                    "1993"=ranef(flower_n_mod)$year_t1[7,],
+                                                                    "1994"=ranef(flower_n_mod)$year_t1[8,],
+                                                                    "1995"=ranef(flower_n_mod)$year_t1[9,],
+                                                                    "1996"=ranef(flower_n_mod)$year_t1[10,],
+                                                                    "1997"=ranef(flower_n_mod)$year_t1[11,],
+                                                                    "1998"=ranef(flower_n_mod)$year_t1[12,],
+                                                                    "1999"=ranef(flower_n_mod)$year_t1[13,],
+                                                                    "2000"=ranef(flower_n_mod)$year_t1[14,]),
+                     
+                   #dom_b0 = fixef(dorm_mod)[1],      
                    #dom_b1 = fixef (dorm_mod)[2],
                    #ge_b0 = fixef(germ_mod)[1],
                               #ge_site = list(0,
@@ -191,11 +266,7 @@ library(ggplot2)
                    U       = max(iso$size_t0,na.rm=T),
                   mat_siz = 50
                  )
-pars$surv_site
-                   
-pars$flop_site
-                   
-pars$ flon_site 
+
                    
                    
 # Transforms all values below/above limits in min/max size
@@ -214,19 +285,20 @@ pars$ flon_site
     #}
                 
     # Growth (transition) from size x to size y
-     gxy <- function(y, x, pars){
+     gxy <- function(y, x, pars,year){
       xb <- x_range(x, pars)
         # returns a *probability density distribution* for each x value
          return( dnorm(y, 
-                  mean = pars$grow_b0 +pars$grow_b1 *xb, 
+                  mean = pars$grow_b0 +
+                  pars$grow_yr_in[[year]]+(pars$grow_b1+pars$grow_yr_slope[[year]])*xb, 
                   sd   = pars$grow_sd) )
        }
               
 # Survival at size x
-sx<-function(x,pars, site){
+sx<-function(x,pars, site,year){
      xb <- x_range(x, pars)
      # survival prob. of each x size class 
-    return( inv_logit(pars$surv_b0 + pars$surv_b1 * xb + pars$surv_site[[site]]) )
+    return( inv_logit(pars$surv_b0 + pars$surv_b1 * xb + pars$surv_site[[site]] +pars$surv_yr[[year]]) )
       }
 
 
@@ -237,28 +309,26 @@ sx<-function(x,pars, site){
 #}
 
 # Aldos way transition: Survival * growth
-pxy <-function(y,x,pars,site){
+pxy <-function(y,x,pars,site,year){
   xb <- x_range(x, pars)
-  return( sx(xb,pars,site) * gxy(y,x,pars) )
+  return( sx(xb,pars,site,year) * gxy(y,x,pars,year) )
 }
 
 # flowering at size x
-flx<-function(x,pars, site){
+flx<-function(x,pars, site,year){
   xb <- x_range(x, pars)
   # flowering  prob. of each x size class 
   return( inv_logit(pars$flop_b0 + 
                     pars$flop_b1 * xb +
-                    pars$flop_site[[site]] )*0.84615385  ) #0.84.. maximum flowerpropability by aldo 
+                    pars$flop_site[[site]] +pars$flop_yr[[year]])*0.84615385  ) #0.84.. maximum flowerpropability by aldo 
 }
-pars$flop_b0
-pars$flop_b1
-pars$flop_site[[site]]
+
 
 # flowernumber at size x
-fln<-function(x, pars, site){
+fln<-function(x, pars, site,year){
   xb <- x_range(x, pars)
   # flowernumber of each x size class 
-  return( exp(pars$flon_b0 + pars$flon_b1 * xb + pars$flon_site[[site]])) 
+  return( exp(pars$flon_b0 + pars$flon_b1 * xb + pars$flon_site[[site]]+ pars$flon_yr[[year]])) 
 }
 
 # propability to go dormant at size x
@@ -297,15 +367,15 @@ nrxy <- function(y,pars ){# maybe h is missing
 #}
 
 #fecundity by aldo but with Site, h is multiplied with in the Fmat
-fec<-function(y, x, pars, site){
+fec<-function(y, x, pars, site,year){
   xb<- x_range(x, pars)
-  flx(xb, pars,site)*fln(xb,pars,site)  *  pars$abort_r *  pars$recr_by_flow *nrxy(y,pars)
+  flx(xb, pars,site,year)*fln(xb,pars,site,year)  *  pars$abort_r *  pars$recr_by_flow *nrxy(y,pars)
 }
 
 # IPM lambda ------------------------------------------------------------
 
 # IPM kernel
-kernel <- function( pars, site){
+kernel <- function( pars, site, year){
   
   n   <- pars$mat_siz
   L   <- pars$L 
@@ -330,7 +400,7 @@ kernel <- function( pars, site){
   
   # aldo Fertility matrix
   Fmat <- matrix(0, n, n)
-  Fmat <- outer(y, y, fec, pars,site) * h 
+  Fmat <- outer(y, y, fec, pars,site,year) * h 
   
   # Growth/survival transition matrix
   #Tmat       <- matrix(0,(n+1),(n+1))
@@ -343,7 +413,7 @@ kernel <- function( pars, site){
   Tmat <- matrix(0,n,n)
   
   # Growth/survival transitions among cts sizes
-  Tmat <- outer(y,y,pxy,pars,site) * h
+  Tmat <- outer(y,y,pxy,pars,site,year) * h
   
 # Dormancy
   # living  plants go dormant and go in top row
@@ -366,7 +436,7 @@ kernel <- function( pars, site){
               meshpts = y))
   
 }
-a<-kernel(pars,3)
+a<-kernel(pars,3,1)
 a$k_yx
 # there are 4 sites (numbered 1-4)
 
@@ -374,12 +444,67 @@ a$k_yx
 
 # Deterministic lambda
 
-lambda <-function(pars, site){
-  Re(eigen(kernel(pars, site)$k_yx)$value[1]) 
+lambda <-function(pars, site,year){
+  Re(eigen(kernel(pars, site,year)$k_yx)$value[1]) 
 }
 
-lambda(pars, site = 1) 
-lambda(pars, site = 2)
-lambda(pars, site = 3)
-lambda(pars, site = 4)
+lambda(pars, site = 1,year=1)
+lambda(pars, site = 1,year=2)
+lambda(pars, site = 1,year=3)
+lambda(pars, site = 1,year=4)
+lambda(pars, site = 1,year=5)
+lambda(pars, site = 1,year=6)
+lambda(pars, site = 1,year=7)
+lambda(pars, site = 1,year=8)
+lambda(pars, site = 1,year=9)
+lambda(pars, site = 1,year=10)
+lambda(pars, site = 1,year=11)
+lambda(pars, site = 1,year=12)
+lambda(pars, site = 1,year=13)
+lambda(pars, site = 1,year=14)
 
+
+lambda(pars, site = 2,year=1)
+lambda(pars, site = 2,year=2)
+lambda(pars, site = 2,year=3)
+lambda(pars, site = 2,year=4)
+lambda(pars, site = 2,year=5)
+lambda(pars, site = 2,year=6)
+lambda(pars, site = 2,year=7)
+lambda(pars, site = 2,year=8)
+lambda(pars, site = 2,year=9)
+lambda(pars, site = 2,year=10)
+lambda(pars, site = 2,year=11)
+lambda(pars, site = 2,year=12)
+lambda(pars, site = 2,year=13)
+lambda(pars, site = 2,year=14)
+
+lambda(pars, site = 3,year=1)
+lambda(pars, site = 3,year=2)
+lambda(pars, site = 3,year=3)
+lambda(pars, site = 3,year=4)
+lambda(pars, site = 3,year=5)
+lambda(pars, site = 3,year=6)
+lambda(pars, site = 3,year=7)
+lambda(pars, site = 3,year=8)
+lambda(pars, site = 3,year=9)
+lambda(pars, site = 3,year=10)
+lambda(pars, site = 3,year=11)
+lambda(pars, site = 3,year=12)
+lambda(pars, site = 3,year=13)
+lambda(pars, site = 3,year=14)
+
+lambda(pars, site = 4,year=1)
+lambda(pars, site = 4,year=2)
+lambda(pars, site = 4,year=3)
+lambda(pars, site = 4,year=4)
+lambda(pars, site = 4,year=5)
+lambda(pars, site = 4,year=6)
+lambda(pars, site = 4,year=7)
+lambda(pars, site = 4,year=8)
+lambda(pars, site = 4,year=9)
+lambda(pars, site = 4,year=10)
+lambda(pars, site = 4,year=11)
+lambda(pars, site = 4,year=12)
+lambda(pars, site = 4,year=13)
+lambda(pars, site = 4,year=14)
